@@ -1,16 +1,30 @@
-version: '3.8'
+# Root docker-compose: orchestrates all stacks for local dev
+version: "3.8"
 services:
-  web:
-    build: .
+  node-app:
+    build: ./node-mongo
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+  mongo:
+    image: mongo:7
+    volumes:
+      - mongo_data:/data/db
+  django-app:
+    build: ./django-postgres
     ports:
       - "8000:8000"
-    environment:
-      - DB_HOST=db
     depends_on:
-      - db
-  db:
-    image: postgres:13
+      - postgres
+  postgres:
+    image: postgres:16-alpine
     environment:
-      - POSTGRES_USER=user
-      - POSTGRES_PASSWORD=pass
-      - POSTGRES_DB=appdb
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: pass
+      POSTGRES_DB: appdb
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+volumes:
+  mongo_data:
+  pg_data:
